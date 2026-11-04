@@ -113,9 +113,9 @@ body.drawing #actions { opacity: 1; pointer-events: auto; transform: translateX(
   padding: 90px 24px 120px;
 }
 .view[hidden] { display: none; }
-.view header { display: flex; justify-content: center; margin: 0 0 32px; }
+.view header { display: flex; justify-content: center; margin: 0 0 40px; }
 .view-title {
-  margin: 0; font-weight: normal; font-size: 48px; line-height: 1.1;
+  margin: 0; font-weight: normal; font-size: 144px; line-height: 1;   /* antes 48px */
   font-family: inherit; color: #222;
 }
 .view .close {
@@ -168,7 +168,7 @@ body.drawing #actions { opacity: 1; pointer-events: auto; transform: translateX(
   .view { padding: 80px 14px 120px; }
   .grid { grid-template-columns: repeat(2, 1fr); gap: 18px 12px; }
   #logo img { width: 150px; height: auto; }
-  .view-title { font-size: 38px; }
+  .view-title { font-size: 100px; }   /* antes 38px; en celular más grande no entra "galería" */
   /* en el celular no entra al lado del menú: sube arriba de él, siempre centrado */
   #actions { bottom: 150px !important; height: auto !important; }
 }
