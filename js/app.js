@@ -20,6 +20,7 @@
   const PELUSA_SRC = 'img/pelusa.png';   // <- reemplazá ese archivo por tu pelusa (PNG con transparencia)
   const PELUSA_WIDTH = 420;        // ancho de la pelusa en pantalla (px). El alto se calcula solo.
                                    // Usá un PNG bien grande (2 a 3 veces este ancho) para que se vea nítida.
+  const MOBILE_FILL = 0.74;        // en pantallas chicas, la pelusa ocupa como máximo esta fracción del ancho/alto
   const EXPORT_SCALE = 2;          // calidad de la imagen que se descarga (2 = el doble de resolución)
   // Instagram no permite publicar por link: en el celular se abre el menú de compartir con la imagen,
   // y en la compu se descarga la imagen y se abre esta página para que la subas.
@@ -42,13 +43,14 @@
   lctx.scale(LS, LS);
 
   const pelusa = new Image();
-  pelusa.onload = () => dirty();
+  pelusa.onload = () => resize();
   pelusa.src = PELUSA_SRC;
 
   // Tamaño de la pelusa en el "mundo" (px de pantalla), respetando la proporción del PNG
   function pelusaSize() {
     const w = PELUSA_WIDTH;
-    return [w, w * pelusa.naturalHeight / pelusa.naturalWidth];
+    const ratio = pelusa.naturalWidth ? pelusa.naturalHeight / pelusa.naturalWidth : 1;
+    return [w, w * ratio];
   }
 
   // Versión de la pelusa ya achicada al tamaño exacto en que se va a mostrar.
@@ -81,6 +83,7 @@
   }
 
   let vw = 0, vh = 0;              // tamaño de la ventana
+  let viewScale = 1;               // zoom con el que se ve el "mundo": 1 en la compu, menos en pantallas chicas
   let camX = 0, camY = 0;          // esquina superior izquierda de lo que se ve, en coordenadas del mundo
   let drawing = false;             // ¿modo "crear" activado?
   let tool  = 'lapiz';             // 'mano' | 'lapiz' | 'goma'
@@ -116,23 +119,39 @@
   /* =========================================================
    * CÁMARA / TAMAÑO
    * ========================================================= */
+  // Cuánto "mundo" se ve en pantalla (en unidades del mundo)
+  const viewW = () => vw / viewScale;
+  const viewH = () => vh / viewScale;
+
   function clampCam() {
-    camX = vw >= WORLD_W ? (WORLD_W - vw) / 2 : Math.min(Math.max(camX, 0), WORLD_W - vw);
-    camY = vh >= WORLD_H ? (WORLD_H - vh) / 2 : Math.min(Math.max(camY, 0), WORLD_H - vh);
-    camX = Math.round(camX);   // posiciones enteras: la pelusa no se "desenfoca" por medios píxeles
-    camY = Math.round(camY);
+    const W = viewW(), H = viewH();
+    camX = W >= WORLD_W ? (WORLD_W - W) / 2 : Math.min(Math.max(camX, 0), WORLD_W - W);
+    camY = H >= WORLD_H ? (WORLD_H - H) / 2 : Math.min(Math.max(camY, 0), WORLD_H - H);
+    const k = viewScale * dpr;   // alineado a píxeles reales: la pelusa no se "desenfoca" por medios píxeles
+    camX = Math.round(camX * k) / k;
+    camY = Math.round(camY * k) / k;
+  }
+
+  // En pantallas chicas (celular) todo el mundo se ve más chico, para que la pelusa
+  // entre completa en el medio con el mismo "espíritu" que en la compu.
+  // Como se achica el mundo entero (y no solo la pelusa), tu dibujo mantiene siempre
+  // su relación con la pelusa, aunque gires el celular.
+  function computeScale() {
+    const [pw, ph] = pelusaSize();
+    return Math.min(1, (vw * MOBILE_FILL) / pw, (vh * MOBILE_FILL) / ph);
   }
 
   function resize() {
     // mantener el centro de lo que se ve al cambiar el tamaño de la ventana
-    const cx = vw ? camX + vw / 2 : WORLD_W / 2;
-    const cy = vh ? camY + vh / 2 : WORLD_H / 2;
+    const cx = vw ? camX + viewW() / 2 : WORLD_W / 2;
+    const cy = vh ? camY + viewH() / 2 : WORLD_H / 2;
     vw = window.innerWidth;
     vh = window.innerHeight;
+    viewScale = computeScale();
     stage.width  = Math.round(vw * dpr);
     stage.height = Math.round(vh * dpr);
-    camX = cx - vw / 2;
-    camY = cy - vh / 2;
+    camX = cx - viewW() / 2;
+    camY = cy - viewH() / 2;
     clampCam();
     needsRender = false; dirty();
   }
@@ -179,8 +198,9 @@
 
   function render() {
     needsRender = false;
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    ctx.clearRect(0, 0, vw, vh);
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.clearRect(0, 0, stage.width, stage.height);
+    ctx.setTransform(dpr * viewScale, 0, 0, dpr * viewScale, 0, 0);
     ctx.save();
     ctx.translate(-camX, -camY);
 
@@ -200,14 +220,14 @@
     // 2) la pelusa, siempre en el centro del mundo y por encima del dibujo
     if (pelusa.complete && pelusa.naturalWidth) {
       const [w, h] = pelusaSize();
-      const bmp = pelusaBitmap(w * dpr);            // tamaño real en píxeles de pantalla
+      const bmp = pelusaBitmap(w * viewScale * dpr);   // tamaño real en píxeles de pantalla
       ctx.drawImage(bmp, Math.round(WORLD_W / 2 - w / 2), Math.round(WORLD_H / 2 - h / 2), w, h);
     }
     ctx.restore();
   }
 
   function toWorld(e) {
-    return [camX + e.clientX, camY + e.clientY];
+    return [camX + e.clientX / viewScale, camY + e.clientY / viewScale];
   }
 
   /* =========================================================
@@ -233,8 +253,8 @@
     if (e.pointerId !== activePointer) return;
 
     if (pan) {
-      camX = pan.cx - (e.clientX - pan.x);
-      camY = pan.cy - (e.clientY - pan.y);
+      camX = pan.cx - (e.clientX - pan.x) / viewScale;
+      camY = pan.cy - (e.clientY - pan.y) / viewScale;
       clampCam();
       dirty();
       return;
@@ -434,7 +454,9 @@
       await PelusartStore.add(thumbnailDataURL());
     } catch (err) {
       console.error(err);
-      toast(err.name === 'SecurityError' ? FILE_MSG : 'No se pudo publicar (sin espacio en el navegador)');
+      toast(err.name === 'SecurityError' ? FILE_MSG
+          : PelusartStore.remote ? 'No se pudo publicar. Revisá tu conexión e intentá de nuevo'
+          : 'No se pudo publicar (sin espacio en el navegador)');
       return;
     }
     strokes = []; redo = [];
@@ -457,44 +479,110 @@
     const fig = document.createElement('figure');
     fig.className = 'card';
     fig.innerHTML = `
-      <div class="frame"><img alt="Pelusart"></div>
+      <div class="frame"><img alt="Pelusart" loading="lazy"></div>
       <figcaption>
         ${rank ? `<span class="rank">${rank}</span>` : '<span></span>'}
-        <button type="button" class="heart ${item.voted ? 'voted' : ''}" aria-label="Votar">
-          <span class="h">♥</span><span class="n">${item.votes}</span>
-        </button>
+        <span class="side">
+          ${PelusartStore.isAdmin() ? '<button type="button" class="pill del" title="Borrar para todos">borrar</button>' : ''}
+          <button type="button" class="heart ${item.voted ? 'voted' : ''}" aria-label="Votar">
+            <span class="h">♥</span><span class="n">${item.votes}</span>
+          </button>
+        </span>
       </figcaption>`;
     $('img', fig).src = item.img;
+
     $('.heart', fig).addEventListener('click', async ev => {
       const btn = ev.currentTarget;
-      const res = await PelusartStore.vote(item.id);
-      if (!res) return;
-      btn.classList.toggle('voted', res.voted);
-      $('.n', btn).textContent = res.votes;
-      item.votes = res.votes; item.voted = res.voted;
+      try {
+        const res = await PelusartStore.vote(item.id);
+        if (!res) return;
+        btn.classList.toggle('voted', res.voted);
+        $('.n', btn).textContent = res.votes;
+        item.votes = res.votes; item.voted = res.voted;
+      } catch (err) { console.error(err); toast('No se pudo registrar el voto'); }
+    });
+
+    const del = $('.del', fig);
+    if (del) del.addEventListener('click', async () => {
+      if (!confirm('¿Borrar esta obra para todos? No se puede deshacer.')) return;
+      del.disabled = true;
+      try {
+        await PelusartStore.remove(item);
+        fig.remove();
+        toast('Obra borrada');
+      } catch (err) {
+        console.error(err);
+        del.disabled = false;
+        if (err.status === 401 || err.status === 403) { PelusartStore.logout(); updateAdminBar(); toast('Tu sesión de moderador venció. Ingresá de nuevo'); openLogin(); }
+        else toast('No se pudo borrar. Intentá de nuevo');
+      }
     });
     return fig;
   }
 
+  let viewToken = 0;   // evita que una respuesta lenta pise a una más nueva
   async function openView(name) {
+    const token = ++viewToken;
     closeViews();
     if (drawing) stopCreating();
-    const items = await PelusartStore.list();
     const grid = $('.grid', views[name]);
-    grid.innerHTML = '';
+    grid.innerHTML = '<p class="empty">cargando…</p>';
+    views[name].hidden = false;
+    views[name].scrollTop = 0;
 
-    let list = items;
-    if (name === 'top10') {
-      list = [...items].sort((a, b) => b.votes - a.votes || b.created - a.created).slice(0, 10);
+    let list;
+    try {
+      list = await PelusartStore.list(name === 'top10' ? { top: 10 } : {});
+    } catch (err) {
+      console.error(err);
+      if (token === viewToken) grid.innerHTML = '<p class="empty">No se pudo cargar. Revisá tu conexión y probá de nuevo.</p>';
+      return;
     }
+    if (token !== viewToken) return;
+    grid.innerHTML = '';
     if (!list.length) {
       grid.innerHTML = '<p class="empty">Todavía no hay Pelusarts. ¡Creá el primero!</p>';
     } else {
       list.forEach((it, i) => grid.appendChild(card(it, name === 'top10' ? i + 1 : null)));
     }
-    views[name].hidden = false;
-    views[name].scrollTop = 0;
   }
+
+  /* =========================================================
+   * MODO MODERADOR  (abrí  tu-sitio/#admin )
+   * ========================================================= */
+  const adminBar = $('#admin-bar'), loginBox = $('#admin-login'), loginForm = $('form', loginBox);
+
+  function updateAdminBar() { adminBar.hidden = !PelusartStore.isAdmin(); }
+
+  function openLogin() {
+    if (!PelusartStore.remote) { toast('El modo moderador necesita configurar Supabase (mirá el README)'); return; }
+    loginForm.reset();
+    $('.err', loginBox).textContent = '';
+    loginBox.hidden = false;
+    $('[name=email]', loginBox).focus();
+  }
+  const closeLogin = () => { loginBox.hidden = true; };
+
+  loginForm.addEventListener('submit', async e => {
+    e.preventDefault();
+    const btn = $('[type=submit]', loginForm), err = $('.err', loginBox);
+    btn.disabled = true; err.textContent = '';
+    try {
+      await PelusartStore.login(loginForm.email.value.trim(), loginForm.password.value);
+      closeLogin(); updateAdminBar();
+      toast('Modo moderador activado');
+      if (!views.galeria.hidden) openView('galeria'); else if (!views.top10.hidden) openView('top10');
+    } catch (ex) {
+      console.error(ex);
+      err.textContent = 'Email o contraseña incorrectos';
+    } finally { btn.disabled = false; }
+  });
+
+  function checkAdminHash() {
+    if (location.hash === '#admin' && !PelusartStore.isAdmin()) openLogin();
+    updateAdminBar();
+  }
+  window.addEventListener('hashchange', checkAdminHash);
 
   /* =========================================================
    * CONEXIÓN DE BOTONES
@@ -511,6 +599,11 @@
       case 'galeria':     return openView('galeria');
       case 'top10':       return openView('top10');
       case 'cerrar':      return closeViews();
+      case 'admin-cancel':  return closeLogin();
+      case 'admin-logout':  PelusartStore.logout(); updateAdminBar(); toast('Saliste del modo moderador');
+                            if (!views.galeria.hidden) return openView('galeria');
+                            if (!views.top10.hidden) return openView('top10');
+                            return;
       case 'borrar-todo': return clearAll();
       case 'guardar':     return saveToDevice();
       case 'instagram':   return shareInstagram();
@@ -520,7 +613,7 @@
   });
 
   document.addEventListener('keydown', e => {
-    if (e.key === 'Escape') closeViews();
+    if (e.key === 'Escape') { closeViews(); closeLogin(); }
     const mod = e.ctrlKey || e.metaKey;
     if (drawing && mod && e.key.toLowerCase() === 'z') {
       e.preventDefault();
@@ -528,18 +621,27 @@
     }
   });
 
-  // Deshacer / Listo: se alinean con la fila de "top 10" (aunque cambies esa imagen por otra de otro tamaño)
+  // Deshacer / Listo: abajo al centro, a la altura de "top 10" (aunque cambies esa imagen por otra de otro tamaño).
+  // Si no entran entre el menú y el botón de Instagram (celular vertical), suben justo encima del menú.
   function alignActions() {
-    const bar = $('#actions'), ref = $('#menu [data-action="top10"]');
+    const bar = $('#actions'), ref = $('#menu [data-action="top10"]'), menu = $('#menu'), social = $('#social');
     if (!bar || !ref) return;
-    if (!matchMedia('(min-width: 601px)').matches) { bar.style.bottom = bar.style.height = ''; return; }
     const r = ref.getBoundingClientRect();
     if (!r.height) return;
-    bar.style.height = r.height + 'px';
-    bar.style.bottom = (window.innerHeight - r.bottom) + 'px';
+    const w = bar.offsetWidth, W = window.innerWidth;
+    const fits = (W - w) / 2 > menu.getBoundingClientRect().right + 12 &&
+                 (W + w) / 2 < social.getBoundingClientRect().left - 12;
+    if (fits) {
+      bar.style.height = r.height + 'px';
+      bar.style.bottom = (window.innerHeight - r.bottom) + 'px';
+    } else {
+      bar.style.height = 'auto';
+      bar.style.bottom = (window.innerHeight - menu.getBoundingClientRect().top + 14) + 'px';
+    }
   }
   window.addEventListener('load', alignActions);          // cuando ya cargaron las imágenes del menú
   window.addEventListener('resize', alignActions);
+  window.addEventListener('orientationchange', () => setTimeout(alignActions, 250));
   alignActions();
 
   window.addEventListener('resize', resize);
@@ -548,4 +650,5 @@
 
   resize();
   updateButtons();
+  checkAdminHash();
 })();

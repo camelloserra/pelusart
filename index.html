@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/style.css?v=5">
+  <link rel="stylesheet" href="css/style.css?v=7">
 </head>
 <body data-tool="lapiz">
 
@@ -38,9 +38,9 @@
     <!-- Panel "trazo": 3 pinceles -->
     <div class="trazo">
       <img src="img/tool-trazo-panel.png" alt="trazo">
-      <button type="button" class="brush" data-brush="fino"     title="Trazo fino"    style="top:21px;height:33px"></button>
-      <button type="button" class="brush" data-brush="marcador" title="Trazo mediano" style="top:54px;height:23px"></button>
-      <button type="button" class="brush" data-brush="grueso"   title="Trazo grueso" style="top:77px;height:41px"></button>
+      <button type="button" class="brush" data-brush="fino"     title="Trazo fino"    style="top:17.5%;height:27.5%"></button>
+      <button type="button" class="brush" data-brush="marcador" title="Trazo mediano" style="top:45%;height:19.2%"></button>
+      <button type="button" class="brush" data-brush="grueso"   title="Trazo grueso" style="top:64.2%;height:34.2%"></button>
     </div>
   </aside>
 
@@ -69,9 +69,29 @@
     <div class="grid" id="grid-top10"></div>
   </section>
 
+  <!-- Modo moderador: se activa entrando a  tu-sitio/#admin  -->
+  <div id="admin-bar" hidden>
+    <span>modo moderador</span>
+    <button type="button" class="pill" data-action="admin-logout">salir</button>
+  </div>
+
+  <div id="admin-login" class="modal" hidden>
+    <form autocomplete="on">
+      <h3>moderador</h3>
+      <input type="email" name="email" placeholder="email" autocomplete="username" required>
+      <input type="password" name="password" placeholder="contraseña" autocomplete="current-password" required>
+      <p class="err" role="alert"></p>
+      <div class="row">
+        <button type="button" class="pill" data-action="admin-cancel">cancelar</button>
+        <button type="submit" class="pill primary">entrar</button>
+      </div>
+    </form>
+  </div>
+
   <div id="toast" role="status" aria-live="polite"></div>
 
-  <script src="js/store.js?v=5"></script>
-  <script src="js/app.js?v=5"></script>
+  <script src="js/config.js?v=7"></script>
+  <script src="js/store.js?v=7"></script>
+  <script src="js/app.js?v=7"></script>
 </body>
 </html>

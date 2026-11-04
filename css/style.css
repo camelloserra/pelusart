@@ -58,16 +58,19 @@ body.drawing #menu [data-action="crear"] { opacity: .4; pointer-events: none; }
 }
 body.drawing #toolbar { opacity: 1; pointer-events: auto; transform: none; }
 
+#toolbar { --t: 1; }   /* escala de la toolbar: 1 en la compu, menos en celulares (ver abajo) */
 #toolbar .tool,
 #toolbar .action {
-  background: none; border: 0; padding: 0; width: 46px;
+  background: none; border: 0; padding: 0; width: calc(46px * var(--t));
   transition: background .12s ease;
 }
+#toolbar .tool img, #toolbar .action img { width: 100%; height: auto; }
 #toolbar .tool:hover,
 #toolbar .action:hover { background: rgba(0, 0, 0, .05); }
 #toolbar .tool.active { background: rgba(0, 0, 0, .13); }
 
-.trazo { position: relative; width: 46px; height: 120px; margin-top: 14px; }
+.trazo { position: relative; width: calc(46px * var(--t)); height: calc(120px * var(--t)); margin-top: calc(14px * var(--t)); }
+.trazo > img { width: 100%; height: 100%; }
 .trazo .brush {
   position: absolute; left: 0; width: 100%;
   background: none; border: 0; padding: 0;
@@ -163,12 +166,56 @@ body.drawing #actions { opacity: 1; pointer-events: auto; transform: translateX(
 }
 #toast.show { opacity: 1; transform: translate(-50%, 0); }
 
-/* ---------- Pantallas chicas ---------- */
+/* ---------- Moderador ---------- */
+#admin-bar {
+  position: fixed; top: 8px; left: 50%; transform: translateX(-50%); z-index: 35;
+  display: flex; align-items: center; gap: 10px;
+  background: #222; color: #fff; padding: 3px 6px 3px 14px; border-radius: 22px; font-size: 18px;
+}
+#admin-bar[hidden] { display: none; }
+#admin-bar .pill { min-width: 0; padding: 0 10px; font-size: 16px; color: #222; }
+
+.modal {
+  position: fixed; inset: 0; z-index: 50; display: flex; align-items: center; justify-content: center;
+  background: rgba(255, 255, 255, .92); padding: 20px;
+}
+.modal[hidden] { display: none; }
+.modal form {
+  width: min(340px, 100%); background: #fff; padding: 22px 22px 18px;
+  border: 2px solid #222; border-radius: 6px 3px 7px 3px / 3px 7px 3px 6px;
+  display: flex; flex-direction: column; gap: 12px;
+}
+.modal h3 { margin: 0 0 2px; font-weight: normal; font-size: 34px; line-height: 1; }
+.modal input {
+  font: inherit; font-size: 22px; padding: 6px 10px; border: 2px solid #222; border-radius: 6px; background: #fff;
+  width: 100%;
+}
+.modal .err { margin: 0; min-height: 1.2em; color: #c0392b; font-size: 18px; }
+.modal .row { display: flex; justify-content: flex-end; gap: 12px; }
+.card .side { display: inline-flex; align-items: center; gap: 8px; }
+.pill.del { min-width: 0; padding: 0 10px; font-size: 16px; }
+
+/* ---------- Pantallas chicas (celulares, en vertical y en horizontal) ---------- */
+/* El lienzo ya se achica solo (ver computeScale en app.js). Acá se achica la interfaz. */
+@media (max-width: 900px), (max-height: 560px) {
+  #logo { top: 4px; left: 4px; }
+  #logo img { width: 104px; height: auto; }
+  #menu { left: 2px; bottom: 4px; }
+  #menu li { margin: 2px 0; }
+  #menu img { zoom: .78; }
+  #social { right: 4px; bottom: 4px; }
+  #social img { width: 30px; height: 30px; }
+  #toolbar { --t: .8; top: 8px; right: 4px; }
+  .pill { font-size: 16px; padding: 3px 9px; min-width: 0; }
+  #actions { gap: 10px; }
+  .view { padding: 70px 14px 100px; }
+  .view-title { font-size: 100px; }   /* antes 38px; más grande no entra "galería" en una pantalla angosta */
+}
+@media (max-height: 430px) {
+  #toolbar { --t: .66; }
+  .view { padding-top: 50px; }
+  .view-title { font-size: 72px; }
+}
 @media (max-width: 600px) {
-  .view { padding: 80px 14px 120px; }
   .grid { grid-template-columns: repeat(2, 1fr); gap: 18px 12px; }
-  #logo img { width: 150px; height: auto; }
-  .view-title { font-size: 100px; }   /* antes 38px; en celular más grande no entra "galería" */
-  /* en el celular no entra al lado del menú: sube arriba de él, siempre centrado */
-  #actions { bottom: 150px !important; height: auto !important; }
 }

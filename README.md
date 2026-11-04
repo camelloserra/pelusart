@@ -6,53 +6,61 @@ Dibujá alrededor de la pelusa. HTML + CSS + JavaScript puro (sin Flash, sin lib
 
 ```
 pelusart/
-├── index.html        ← la página
-├── css/style.css     ← estilos
+├── index.html
+├── css/style.css
 ├── js/
-│   ├── app.js        ← lienzo, herramientas, galería, compartir
-│   └── store.js      ← dónde se guardan las obras (hoy: el navegador)
-└── img/
-    ├── pelusa.png    ← ¡LA PELUSA! Reemplazá este archivo por el tuyo
-    ├── logo.png
-    ├── menu-*.png    ← las palabritas del menú
-    ├── tool-*.png    ← iconos de la toolbar
-    └── social-ig.png ← icono de Instagram
+│   ├── config.js     ← datos de la galería compartida (Supabase)
+│   ├── store.js      ← galería: modo local o compartido
+│   └── app.js        ← lienzo, herramientas, vistas, moderador
+├── backend/
+│   └── supabase-setup.sql   ← se pega una vez en Supabase
+└── img/              ← pelusa, logo, menú, toolbar, instagram
 ```
 
 ## Cambiar la pelusa
 
-Reemplazá `img/pelusa.png` por otro PNG con transparencia (conservá el nombre).
-Se centra sola y se muestra al ancho de `PELUSA_WIDTH` (en `js/app.js`, por defecto 420 px);
-el alto se calcula respetando la proporción.
-
-**Para que se vea nítida:** usá un PNG de 2 a 3 veces ese ancho (por ejemplo 1000 a 1500 px)
-y exportalo con fondo transparente real. El código la achica con calidad para cada pantalla.
+Reemplazá `img/pelusa.png` (PNG con transparencia, de 1000 a 1500 px de ancho). Se centra sola y
+se muestra al ancho de `PELUSA_WIDTH` en `js/app.js` (420 px por defecto). En pantallas chicas se
+achica sola (`MOBILE_FILL`).
 
 ## Probarla en tu computadora
 
-Los botones guardar y publicar necesitan que la página se sirva desde un servidor
-(abrir el archivo con doble clic hace que el navegador bloquee la exportación).
-Lo más fácil, con Python instalado:
+Guardar y publicar necesitan un servidor (abrir con doble clic hace que el navegador bloquee la
+exportación). Con Python: `cd pelusart` y `python3 -m http.server 8000`, y abrí http://localhost:8000.
 
-```
-cd pelusart
-python3 -m http.server 8000
-```
+## Galería compartida (que todos vean todo) — Supabase, gratis
 
-y abrí http://localhost:8000. Alternativa: la extensión **Live Server** de VS Code.
+Mientras `js/config.js` esté vacío, la galería es **local**: cada navegador ve solo lo suyo.
+Para compartirla:
 
-## Publicarla en internet
+1. Creá una cuenta en https://supabase.com y un proyecto nuevo (**New project**; región South America).
+2. **Authentication → Users → Add user → Create new user**: poné tu email y una contraseña
+   (tildá "Auto Confirm User"). Esa es tu cuenta de moderador.
+3. **Authentication → Sign In / Providers → Email**: desactivá **"Allow new users to sign up"**.
+4. **SQL Editor → New query**: pegá el contenido de `backend/supabase-setup.sql`, reemplazá
+   `TU_EMAIL@EJEMPLO.COM` por tu email (el del paso 2) y tocá **Run**.
+5. **Project Settings → API Keys** (o el botón **Connect**): copiá la **Project URL** y la clave
+   **anon / publishable**, y pegalas en `js/config.js`.
+6. Subí los archivos a GitHub (reemplazando los anteriores) y esperá un minuto.
 
-Cualquier hosting estático sirve: Netlify (arrastrás la carpeta), GitHub Pages, Cloudflare Pages.
+Lo que pueden hacer los visitantes: ver, subir y votar. Borrar, solo vos.
+
+### Moderar (borrar obras)
+
+Entrá a `tu-sitio/#admin`, ingresá con tu email y contraseña: aparece la barra "modo moderador" y un
+botón **borrar** en cada obra (galería y top 10). Con **salir** cerrás la sesión (también se cierra
+al cerrar la pestaña). Alternativa: Supabase → Table Editor → tabla `pelusarts` → borrar la fila.
+
+### Cosas a saber
+
+- Los votos se recuerdan por navegador: no hay cuentas, así que alguien decidido puede votar de más
+  desde otro navegador.
+- Como cualquiera puede subir, la moderación es *después* de publicado. Si ves abuso, avisame y
+  agregamos aprobación previa.
+- El plan gratis de Supabase pausa el proyecto tras ~1 semana sin uso (se reactiva con un clic en el panel).
+- Al cambiar `index.html`, `css`, o `js`, subí el número `?v=` de los links para evitar la caché.
 
 ## Compartir en Instagram
 
-Instagram no permite publicar por link. En el celular, el botón abre el menú de compartir con la
-imagen (elegís Instagram ahí). En la compu descarga la imagen y abre instagram.com para que la subas.
-
-## Pendiente: galería compartida
-
-Hoy la galería y el Top 10 se guardan en el navegador de cada persona (`localStorage`),
-así que cada visitante ve solo lo suyo. Para una galería común hace falta un backend
-(Supabase o Firebase son lo más simple). Solo hay que reescribir las 3 funciones de
-`js/store.js` (`list`, `add`, `vote`); el resto de la app no cambia.
+Instagram no permite publicar por link. En el celular abre el menú de compartir con la imagen; en la
+compu descarga la imagen y abre instagram.com para que la subas.
