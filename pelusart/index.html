@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>Pelusart</title>
+  <meta name="description" content="Dibujá alrededor de la pelusa y creá tu Pelusart.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body data-tool="lapiz">
+
+  <!-- Lienzo principal: acá se ve la pelusa y todo lo que dibujás -->
+  <canvas id="stage"></canvas>
+
+  <!-- Logo -->
+  <h1 id="logo"><img src="img/logo.png" alt="Pelusart"></h1>
+
+  <!-- Menú abajo a la izquierda -->
+  <nav id="menu" aria-label="Menú principal">
+    <ul>
+      <li><button type="button" data-action="crear"   title="Crear Pelusart"><img src="img/menu-crear.png"   alt="crear pelusart"></button></li>
+      <li><button type="button" data-action="galeria" title="Galería"><img src="img/menu-galeria.png" alt="galería"></button></li>
+      <li><button type="button" data-action="top10"   title="Top 10"><img src="img/menu-top10.png"   alt="top 10"></button></li>
+    </ul>
+  </nav>
+
+  <!-- Toolbar arriba a la derecha (aparece al tocar "crear pelusart") -->
+  <aside id="toolbar" aria-label="Herramientas">
+    <button type="button" class="tool" data-tool="mano"  title="Mover el lienzo"><img src="img/tool-mano.png"  alt="mano"></button>
+    <button type="button" class="tool" data-tool="lapiz" title="Dibujar"><img src="img/tool-lapiz.png" alt="lápiz"></button>
+    <button type="button" class="tool" data-tool="goma"  title="Goma de borrar"><img src="img/tool-goma.png"  alt="goma"></button>
+    <button type="button" class="action" data-action="borrar-todo" title="Borrar todo"><img src="img/tool-trash.png" alt="borrar todo"></button>
+    <button type="button" class="action" data-action="guardar"     title="Guardar en mi dispositivo"><img src="img/tool-save.png"  alt="guardar"></button>
+
+    <!-- Panel "trazo": 3 pinceles -->
+    <div class="trazo">
+      <img src="img/tool-trazo-panel.png" alt="trazo">
+      <button type="button" class="brush" data-brush="fino"     title="Trazo fino"    style="top:21px;height:33px"></button>
+      <button type="button" class="brush" data-brush="marcador" title="Trazo mediano" style="top:54px;height:23px"></button>
+      <button type="button" class="brush" data-brush="grueso"   title="Trazo grueso" style="top:77px;height:41px"></button>
+    </div>
+
+    <button type="button" class="pill" data-action="deshacer">↶ deshacer</button>
+    <button type="button" class="pill primary" data-action="publicar">listo ✓</button>
+  </aside>
+
+  <!-- Compartir abajo a la derecha -->
+  <div id="social">
+    <button type="button" data-action="instagram" title="Compartir en Instagram"><img src="img/social-ig.png" width="37" height="37" alt="Instagram"></button>
+  </div>
+
+  <!-- Galería -->
+  <section id="view-galeria" class="view" hidden>
+    <button type="button" class="close" data-action="cerrar" aria-label="Cerrar">×</button>
+    <header><img src="img/menu-galeria.png" alt="galería"></header>
+    <div class="grid" id="grid-galeria"></div>
+  </section>
+
+  <!-- Top 10 -->
+  <section id="view-top10" class="view" hidden>
+    <button type="button" class="close" data-action="cerrar" aria-label="Cerrar">×</button>
+    <header><img src="img/menu-top10.png" alt="top 10"></header>
+    <div class="grid" id="grid-top10"></div>
+  </section>
+
+  <div id="toast" role="status" aria-live="polite"></div>
+
+  <script src="js/store.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
