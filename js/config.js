@@ -10,6 +10,6 @@
  * backend/supabase-setup.sql (cualquiera puede ver, subir y votar; solo vos podés borrar).
  */
 window.PELUSART_CONFIG = {
-  SUPABASE_URL: '',        // ej: 'https://abcdefgh.supabase.co'
-  SUPABASE_ANON_KEY: '',   // la clave "anon public" (empieza con 'eyJ...' o 'sb_publishable_...')
+  SUPABASE_URL: 'https://fzmuhwrwupofvrmtsawt.supabase.co',
+  SUPABASE_ANON_KEY: 'sb_publishable_wTc2hxiXymgBmynOf7vKYQ_7ygccIke',
 };
