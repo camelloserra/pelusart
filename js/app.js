@@ -595,6 +595,7 @@
     if (t.dataset.brush) return setBrush(t.dataset.brush);
 
     switch (t.dataset.action) {
+      case 'crear':       return startCreating();
       case 'galeria':     return openView('galeria');
       case 'top10':       return openView('top10');
       case 'cerrar':      closeViews(); return startCreating();
@@ -612,7 +613,7 @@
   });
 
   document.addEventListener('keydown', e => {
-    if (e.key === 'Escape') { const wasOpen = Object.values(views).some(v => !v.hidden); closeViews(); closeLogin(); if (wasOpen) startCreating(); }
+    if (e.key === 'Escape') { closeViews(); closeLogin(); }
     const mod = e.ctrlKey || e.metaKey;
     if (drawing && mod && e.key.toLowerCase() === 'z') {
       e.preventDefault();
@@ -649,21 +650,11 @@
 
   resize();
   updateButtons();
+  // En el celular, al abrir el link la barra del navegador cambia el alto después de cargar:
+  // reacomodamos solos al instante, al segundo y a los 2 segundos (sin recargar, así no se pierde nada).
+  const relayout = () => { window.scrollTo(0, 0); resize(); alignActions(); };
+  [300, 1000, 2000].forEach(ms => setTimeout(relayout, ms));
+  if (window.visualViewport) window.visualViewport.addEventListener('resize', () => { resize(); alignActions(); });
+  startCreating();          // arranca directo en modo dibujo (ya no hay botón "crear")
   checkAdminHash();
-  startCreating();   // al abrir, ya se puede dibujar (no hace falta un botón "crear")
-
-  // Celular abierto desde un link (WhatsApp, Instagram…): el navegador informa mal el alto de la
-  // pantalla al principio y la página queda cortada arriba. Se vuelve a medir varias veces y,
-  // si todavía no dibujaste nada, se recarga una sola vez al segundo (lo mismo que hacer "refrescar").
-  const remeasure = () => { window.scrollTo(0, 0); resize(); alignActions(); };
-  [150, 500, 1000, 2000].forEach(t => setTimeout(remeasure, t));
-  if (window.visualViewport) visualViewport.addEventListener('resize', remeasure);
-  window.addEventListener('pageshow', remeasure);
-  try {
-    const coarse = matchMedia('(pointer: coarse)').matches;
-    if (coarse && !sessionStorage.getItem('pelusart_refrescado')) {
-      sessionStorage.setItem('pelusart_refrescado', '1');
-      setTimeout(() => { if (!strokes.length && !current) location.reload(); }, 1000);
-    }
-  } catch (e) { /* sin sessionStorage: no se recarga */ }
 })();

@@ -30,7 +30,7 @@ body.drawing[data-tool="goma"]  #stage { cursor: crosshair; }
 
 /* ---------- Logo ---------- */
 #logo {
-  position: fixed; top: 6px; left: 4px; margin: 0; z-index: 30;
+  position: fixed; top: 36px; left: 4px; margin: 0; z-index: 30;
   pointer-events: none;
 }
 
@@ -47,10 +47,11 @@ body.drawing[data-tool="goma"]  #stage { cursor: crosshair; }
   opacity: .85;
 }
 #menu button:hover, #menu button:focus-visible { transform: translateX(4px); opacity: 1; outline: none; }
+body.drawing #menu [data-action="crear"] { opacity: .4; pointer-events: none; }
 
 /* ---------- Toolbar ---------- */
 #toolbar {
-  position: fixed; top: 10px; right: 6px; z-index: 10;
+  position: fixed; top: 40px; right: 6px; z-index: 10;
   display: flex; flex-direction: column; align-items: center; gap: 0;
   opacity: 0; pointer-events: none; transform: translateX(20px);
   transition: opacity .25s ease, transform .25s ease;
@@ -197,14 +198,14 @@ body.drawing #actions { opacity: 1; pointer-events: auto; transform: translateX(
 /* ---------- Pantallas chicas (celulares, en vertical y en horizontal) ---------- */
 /* El lienzo ya se achica solo (ver computeScale en app.js). Acá se achica la interfaz. */
 @media (max-width: 900px), (max-height: 560px) {
-  #logo { top: 4px; left: 4px; }
+  #logo { top: 34px; left: 4px; }
   #logo img { width: 104px; height: auto; }
   #menu { left: 2px; bottom: 4px; }
   #menu li { margin: 2px 0; }
   #menu img { zoom: .78; }
   #social { right: 4px; bottom: 4px; }
   #social img { width: 30px; height: 30px; }
-  #toolbar { --t: .8; top: 8px; right: 4px; }
+  #toolbar { --t: .8; top: 38px; right: 4px; }
   .pill { font-size: 16px; padding: 3px 9px; min-width: 0; }
   #actions { gap: 10px; }
   .view { padding: 70px 14px 100px; }
