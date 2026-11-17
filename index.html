@@ -21,12 +21,13 @@
   <!-- Menú abajo a la izquierda -->
   <nav id="menu" aria-label="Menú principal">
     <ul>
+      <li><button type="button" data-action="crear"   title="Crear Pelusart"><img src="img/menu-crear.png"   alt="crear pelusart"></button></li>
       <li><button type="button" data-action="galeria" title="Galería"><img src="img/menu-galeria.png" alt="galería"></button></li>
       <li><button type="button" data-action="top10"   title="Top 10"><img src="img/menu-top10.png"   alt="top 10"></button></li>
     </ul>
   </nav>
 
-  <!-- Toolbar arriba a la derecha (siempre visible mientras dibujás) -->
+  <!-- Toolbar arriba a la derecha (aparece al tocar "crear pelusart") -->
   <aside id="toolbar" aria-label="Herramientas">
     <button type="button" class="tool" data-tool="mano"  title="Mover el lienzo"><img src="img/tool-mano.png"  alt="mano"></button>
     <button type="button" class="tool" data-tool="lapiz" title="Dibujar"><img src="img/tool-lapiz.png" alt="lápiz"></button>
@@ -43,7 +44,7 @@
     </div>
   </aside>
 
-  <!-- Deshacer / Listo: abajo al centro, a la altura de "top 10" -->
+  <!-- Deshacer / Listo: abajo al centro, a la altura de "top 10" (aparece al tocar "crear pelusart") -->
   <div id="actions">
     <button type="button" class="pill" data-action="deshacer">↶ deshacer</button>
     <button type="button" class="pill primary" data-action="publicar">listo ✓</button>
