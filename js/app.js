@@ -595,10 +595,9 @@
     if (t.dataset.brush) return setBrush(t.dataset.brush);
 
     switch (t.dataset.action) {
-      case 'crear':       return startCreating();
       case 'galeria':     return openView('galeria');
       case 'top10':       return openView('top10');
-      case 'cerrar':      return closeViews();
+      case 'cerrar':      closeViews(); return startCreating();
       case 'admin-cancel':  return closeLogin();
       case 'admin-logout':  PelusartStore.logout(); updateAdminBar(); toast('Saliste del modo moderador');
                             if (!views.galeria.hidden) return openView('galeria');
@@ -613,7 +612,7 @@
   });
 
   document.addEventListener('keydown', e => {
-    if (e.key === 'Escape') { closeViews(); closeLogin(); }
+    if (e.key === 'Escape') { const wasOpen = Object.values(views).some(v => !v.hidden); closeViews(); closeLogin(); if (wasOpen) startCreating(); }
     const mod = e.ctrlKey || e.metaKey;
     if (drawing && mod && e.key.toLowerCase() === 'z') {
       e.preventDefault();
@@ -651,4 +650,20 @@
   resize();
   updateButtons();
   checkAdminHash();
+  startCreating();   // al abrir, ya se puede dibujar (no hace falta un botón "crear")
+
+  // Celular abierto desde un link (WhatsApp, Instagram…): el navegador informa mal el alto de la
+  // pantalla al principio y la página queda cortada arriba. Se vuelve a medir varias veces y,
+  // si todavía no dibujaste nada, se recarga una sola vez al segundo (lo mismo que hacer "refrescar").
+  const remeasure = () => { window.scrollTo(0, 0); resize(); alignActions(); };
+  [150, 500, 1000, 2000].forEach(t => setTimeout(remeasure, t));
+  if (window.visualViewport) visualViewport.addEventListener('resize', remeasure);
+  window.addEventListener('pageshow', remeasure);
+  try {
+    const coarse = matchMedia('(pointer: coarse)').matches;
+    if (coarse && !sessionStorage.getItem('pelusart_refrescado')) {
+      sessionStorage.setItem('pelusart_refrescado', '1');
+      setTimeout(() => { if (!strokes.length && !current) location.reload(); }, 1000);
+    }
+  } catch (e) { /* sin sessionStorage: no se recarga */ }
 })();

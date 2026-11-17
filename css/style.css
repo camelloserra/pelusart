@@ -47,7 +47,6 @@ body.drawing[data-tool="goma"]  #stage { cursor: crosshair; }
   opacity: .85;
 }
 #menu button:hover, #menu button:focus-visible { transform: translateX(4px); opacity: 1; outline: none; }
-body.drawing #menu [data-action="crear"] { opacity: .4; pointer-events: none; }
 
 /* ---------- Toolbar ---------- */
 #toolbar {

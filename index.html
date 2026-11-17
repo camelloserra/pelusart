@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/style.css?v=7">
+  <link rel="stylesheet" href="css/style.css?v=8">
 </head>
 <body data-tool="lapiz">
 
@@ -21,13 +21,12 @@
   <!-- Menú abajo a la izquierda -->
   <nav id="menu" aria-label="Menú principal">
     <ul>
-      <li><button type="button" data-action="crear"   title="Crear Pelusart"><img src="img/menu-crear.png"   alt="crear pelusart"></button></li>
       <li><button type="button" data-action="galeria" title="Galería"><img src="img/menu-galeria.png" alt="galería"></button></li>
       <li><button type="button" data-action="top10"   title="Top 10"><img src="img/menu-top10.png"   alt="top 10"></button></li>
     </ul>
   </nav>
 
-  <!-- Toolbar arriba a la derecha (aparece al tocar "crear pelusart") -->
+  <!-- Toolbar arriba a la derecha (siempre visible mientras dibujás) -->
   <aside id="toolbar" aria-label="Herramientas">
     <button type="button" class="tool" data-tool="mano"  title="Mover el lienzo"><img src="img/tool-mano.png"  alt="mano"></button>
     <button type="button" class="tool" data-tool="lapiz" title="Dibujar"><img src="img/tool-lapiz.png" alt="lápiz"></button>
@@ -44,7 +43,7 @@
     </div>
   </aside>
 
-  <!-- Deshacer / Listo: abajo al centro, a la altura de "top 10" (aparece al tocar "crear pelusart") -->
+  <!-- Deshacer / Listo: abajo al centro, a la altura de "top 10" -->
   <div id="actions">
     <button type="button" class="pill" data-action="deshacer">↶ deshacer</button>
     <button type="button" class="pill primary" data-action="publicar">listo ✓</button>
@@ -90,8 +89,8 @@
 
   <div id="toast" role="status" aria-live="polite"></div>
 
-  <script src="js/config.js?v=7"></script>
-  <script src="js/store.js?v=7"></script>
-  <script src="js/app.js?v=7"></script>
+  <script src="js/config.js?v=8"></script>
+  <script src="js/store.js?v=8"></script>
+  <script src="js/app.js?v=8"></script>
 </body>
 </html>
