@@ -1,235 +1,96 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Prohibido No Jugar</title>
-  <meta name="description" content="Juegos gratis para jugar en el navegador. Prohibido no jugar.">
-  <link rel="icon" href="img/icono.png">
-  <link rel="apple-touch-icon" href="img/icono.png">
-  <meta property="og:title" content="Prohibido No Jugar">
-  <meta property="og:description" content="Juegos gratis para jugar en el navegador.">
-  <meta property="og:image" content="img/logo.png">
-
-  <!-- GOOGLE ADSENSE: cuando te aprueben, pegá acá el script que te da Google -->
-
-  <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-
-    body {
-      background: #fff;
-      color: #111;
-      font-family: "Trebuchet MS", "Segoe UI", system-ui, sans-serif;
-    }
-
-    /* Estructura: publicidad | contenido | publicidad */
-    .pagina {
-      display: grid;
-      grid-template-columns: 1fr minmax(0, 980px) 1fr;
-      gap: 24px;
-      min-height: 100vh;
-    }
-
-    .lateral {
-      display: flex;
-      justify-content: center;
-      padding-top: 180px;
-    }
-    /* Espacio reservado para anuncios verticales (160x600 o 300x600) */
-    .anuncio {
-      position: sticky;
-      top: 24px;
-      width: 160px;
-      min-height: 600px;
-    }
-
-    main { padding: 0 16px 60px; }
-
-    header { text-align: center; padding: 28px 0 32px; }
-    header img { width: min(420px, 85vw); height: auto; mix-blend-mode: multiply; }
-
-    .bajada {
-      text-align: center;
-      font-size: 1.05rem;
-      color: #555;
-      margin-bottom: 32px;
-    }
-
-    /* Grilla de juegos: se acomoda sola y los nuevos aparecen abajo */
-    .juegos {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-      gap: 28px;
-    }
-
-    .juego {
-      position: relative;
-      border: 3px solid #111;
-      border-radius: 16px;
-      overflow: hidden;
-      background: #fff;
-      box-shadow: 5px 5px 0 #111;
-      transition: transform .15s ease, box-shadow .15s ease;
-    }
-    .juego:hover, .juego:focus-within {
-      transform: translate(-3px, -3px) rotate(-1deg);
-      box-shadow: 8px 8px 0 #111;
-    }
-    .juego:active { transform: translate(2px, 2px); box-shadow: 2px 2px 0 #111; }
-    .juego-link { display: block; text-decoration: none; color: inherit; outline: none; }
-
-    .miniatura {
-      aspect-ratio: 16 / 10;
-      width: 100%;
-      object-fit: cover;
-      display: block;
-      border-bottom: 3px solid #111;
-    }
-    /* Tarjeta de color cuando todavía no hay imagen */
-    .miniatura.sin-imagen {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 12px;
-      font-size: 1.5rem;
-      font-weight: 800;
-      text-align: center;
-      line-height: 1.1;
-    }
-
-    /* Descripción (una línea) a la izquierda, corazón a la derecha */
-    .pie { display: flex; align-items: center; gap: 8px; padding: 10px 12px 10px 14px; }
-    .descripcion {
-      flex: 1; min-width: 0;
-      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-      font-size: .85rem; line-height: 1.3; color: #333; text-decoration: none;
-    }
-    .corazon {
-      flex: none; border: 0; background: none; padding: 2px 2px; cursor: pointer;
-      font-size: 1.25rem; line-height: 1; color: #ccc;
-      transition: transform .1s ease, color .15s ease;
-    }
-    .corazon:hover { color: #FF6B6B; }
-    .corazon.on { color: #FF4D5E; }
-    .corazon:disabled { opacity: .6; cursor: wait; }
-    .corazon.pop { animation: pop .35s ease; }
-    @keyframes pop { 40% { transform: scale(1.25); } }
-
-    footer {
-      text-align: center;
-      color: #888;
-      font-size: .9rem;
-      padding: 48px 0 0;
-    }
-
-    /* En pantallas angostas se ocultan los laterales */
-    @media (max-width: 1300px) {
-      .pagina { grid-template-columns: minmax(0, 1fr); }
-      .lateral { display: none; }
-    }
-  </style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>Pelusart</title>
+  <meta name="description" content="Dibujá alrededor de la pelusa y creá tu Pelusart.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css?v=8">
 </head>
-<body>
-  <div class="pagina">
-    <aside class="lateral"><div class="anuncio" id="anuncio-izquierda"><!-- anuncio --></div></aside>
+<body data-tool="lapiz">
 
-    <main>
-      <header>
-        <h1><img src="img/logo.png" alt="Prohibido No Jugar"></h1>
-      </header>
+  <!-- Lienzo principal: acá se ve la pelusa y todo lo que dibujás -->
+  <canvas id="stage"></canvas>
 
-      <section class="juegos" id="juegos"></section>
+  <!-- Logo -->
+  <h1 id="logo"><img src="img/logo.png" alt="Pelusart"></h1>
 
-      <footer>© <span id="anio"></span> Prohibido No Jugar</footer>
-    </main>
+  <!-- Menú abajo a la izquierda -->
+  <nav id="menu" aria-label="Menú principal">
+    <ul>
+      <li><button type="button" data-action="galeria" title="Galería"><img src="img/menu-galeria.png" alt="galería"></button></li>
+      <li><button type="button" data-action="top10"   title="Top 10"><img src="img/menu-top10.png"   alt="top 10"></button></li>
+    </ul>
+  </nav>
 
-    <aside class="lateral"><div class="anuncio" id="anuncio-derecha"><!-- anuncio --></div></aside>
+  <!-- Toolbar arriba a la derecha (siempre visible mientras dibujás) -->
+  <aside id="toolbar" aria-label="Herramientas">
+    <button type="button" class="tool" data-tool="mano"  title="Mover el lienzo"><img src="img/tool-mano.png"  alt="mano"></button>
+    <button type="button" class="tool" data-tool="lapiz" title="Dibujar"><img src="img/tool-lapiz.png" alt="lápiz"></button>
+    <button type="button" class="tool" data-tool="goma"  title="Goma de borrar"><img src="img/tool-goma.png"  alt="goma"></button>
+    <button type="button" class="action" data-action="borrar-todo" title="Borrar todo"><img src="img/tool-trash.png" alt="borrar todo"></button>
+    <button type="button" class="action" data-action="guardar"     title="Guardar en mi dispositivo"><img src="img/tool-save.png"  alt="guardar"></button>
+
+    <!-- Panel "trazo": 3 pinceles -->
+    <div class="trazo">
+      <img src="img/tool-trazo-panel.png" alt="trazo">
+      <button type="button" class="brush" data-brush="fino"     title="Trazo fino"    style="top:17.5%;height:27.5%"></button>
+      <button type="button" class="brush" data-brush="marcador" title="Trazo mediano" style="top:45%;height:19.2%"></button>
+      <button type="button" class="brush" data-brush="grueso"   title="Trazo grueso" style="top:64.2%;height:34.2%"></button>
+    </div>
+  </aside>
+
+  <!-- Deshacer / Listo: abajo al centro, a la altura de "top 10" -->
+  <div id="actions">
+    <button type="button" class="pill" data-action="deshacer">↶ deshacer</button>
+    <button type="button" class="pill primary" data-action="publicar">listo ✓</button>
   </div>
 
-  <script src="ranking.js"></script>
-  <script src="juegos.js"></script>
-  <script>
-    const colores = ["#FFD84D", "#5FB8FF", "#FF6B6B", "#7EE081", "#C9A7FF", "#FFA94D"];
-    const contenedor = document.getElementById("juegos");
+  <!-- Compartir abajo a la derecha -->
+  <div id="social">
+    <button type="button" data-action="instagram" title="Compartir en Instagram"><img src="img/social-ig.png" width="37" height="37" alt="Instagram"></button>
+  </div>
 
-    // clave de cada juego para los "me gusta": el nombre del repo (sale de la url)
-    const clave = juego => juego.url.replace(/^\/+|\/+$/g, "").split("/").pop().toLowerCase();
-    const liked = window.PNJ ? PNJ.likedSet() : new Set();
+  <!-- Galería -->
+  <section id="view-galeria" class="view" hidden>
+    <button type="button" class="close" data-action="cerrar" aria-label="Cerrar">×</button>
+    <header><h2 class="view-title">galería</h2></header>
+    <div class="grid" id="grid-galeria"></div>
+  </section>
 
-    JUEGOS.forEach((juego, i) => {
-      const card = document.createElement("div");
-      card.className = "juego";
+  <!-- Top 10 -->
+  <section id="view-top10" class="view" hidden>
+    <button type="button" class="close" data-action="cerrar" aria-label="Cerrar">×</button>
+    <header><h2 class="view-title">top 10</h2></header>
+    <div class="grid" id="grid-top10"></div>
+  </section>
 
-      const a = document.createElement("a");
-      a.className = "juego-link";
-      a.href = juego.url;
-      a.setAttribute("aria-label", juego.titulo);
+  <!-- Modo moderador: se activa entrando a  tu-sitio/#admin  -->
+  <div id="admin-bar" hidden>
+    <span>modo moderador</span>
+    <button type="button" class="pill" data-action="admin-logout">salir</button>
+  </div>
 
-      let mini;
-      if (juego.imagen) {
-        mini = document.createElement("img");
-        mini.src = "img/juegos/" + juego.imagen;
-        mini.alt = juego.titulo;
-        mini.loading = "lazy";
-      } else {
-        mini = document.createElement("div");
-        mini.classList.add("sin-imagen");
-        mini.style.background = colores[i % colores.length];
-        mini.textContent = juego.titulo;
-      }
-      mini.classList.add("miniatura");
+  <div id="admin-login" class="modal" hidden>
+    <form autocomplete="on">
+      <h3>moderador</h3>
+      <input type="email" name="email" placeholder="email" autocomplete="username" required>
+      <input type="password" name="password" placeholder="contraseña" autocomplete="current-password" required>
+      <p class="err" role="alert"></p>
+      <div class="row">
+        <button type="button" class="pill" data-action="admin-cancel">cancelar</button>
+        <button type="submit" class="pill primary">entrar</button>
+      </div>
+    </form>
+  </div>
 
-      card.append(a);
-      a.append(mini);
+  <div id="toast" role="status" aria-live="polite"></div>
 
-      // pie: descripción (también lleva al juego) + corazón
-      const pie = document.createElement("div");
-      pie.className = "pie";
-      const desc = document.createElement("a");
-      desc.className = "descripcion";
-      desc.href = juego.url;
-      desc.textContent = juego.bajada || juego.titulo;
-      desc.title = juego.bajada || "";
-      pie.append(desc);
-
-      if (window.PNJ) {
-        const id = clave(juego);
-        const b = document.createElement("button");
-        b.type = "button";
-        b.className = "corazon" + (liked.has(id) ? " on" : "");
-        b.title = "Me gusta";
-        b.setAttribute("aria-label", "Me gusta " + juego.titulo);
-        b.setAttribute("aria-pressed", liked.has(id));
-        b.textContent = "♥";
-        b.addEventListener("click", async () => {
-          const delta = liked.has(id) ? -1 : 1;
-          b.disabled = true;
-          try {
-            await PNJ.like(id, delta);
-            if (delta > 0) liked.add(id); else liked.delete(id);
-            PNJ.saveLiked(liked);
-            b.classList.toggle("on", delta > 0);
-            b.setAttribute("aria-pressed", delta > 0);
-            b.classList.remove("pop"); void b.offsetWidth; if (delta > 0) b.classList.add("pop");
-          } catch (e) { /* sin conexión: no pasa nada */ }
-          b.disabled = false;
-        });
-        card.dataset.id = id;
-        card.dataset.orden = i;
-        pie.append(b);
-      }
-      card.append(pie);
-      contenedor.append(card);
-    });
-
-    // los más votados primero (el número no se muestra; a igual cantidad, el orden de juegos.js)
-    if (window.PNJ) PNJ.likes().then(cuentas => {
-      const cards = [...contenedor.children];
-      cards.sort((x, y) => (cuentas[y.dataset.id] || 0) - (cuentas[x.dataset.id] || 0) || x.dataset.orden - y.dataset.orden);
-      cards.forEach(c => contenedor.append(c));
-    }).catch(() => {});
-
-    document.getElementById("anio").textContent = new Date().getFullYear();
-  </script>
+  <script src="js/config.js?v=8"></script>
+  <script src="js/store.js?v=8"></script>
+  <script src="js/app.js?v=8"></script>
 </body>
 </html>
