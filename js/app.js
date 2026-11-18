@@ -574,7 +574,9 @@
       if (!views.galeria.hidden) openView('galeria'); else if (!views.top10.hidden) openView('top10');
     } catch (ex) {
       console.error(ex);
-      err.textContent = 'Email o contraseña incorrectos';
+      err.textContent = !PelusartStore.remote ? 'La galería compartida no está conectada (falta cargar js/config.js)'
+        : (ex.status === 400 || ex.status === 401) ? 'Email o contraseña incorrectos'
+        : 'No se pudo conectar con Supabase (' + (ex.status || 'sin conexión') + ')';
     } finally { btn.disabled = false; }
   });
 
